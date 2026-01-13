@@ -43,7 +43,8 @@ Config = {
         vector4(1701.89, 4935.17, 42.08, 54.58), -- Grapeseepd LTD
         vector4(2534.52, 2600.17, 37.95, 25.57), -- Rex's Diner
         vector4(954.95, 33.59, 81.0, 148.13), -- Casino
-        vec4(13.36, -1606.71, 29.4, 140.13)-- Taco Famrer
+        vec4(13.36, -1606.71, 29.4, 140.13), -- Taco Famrer
+        vec4(-1178.92, -1187.09, 5.71, 99.99), --BCM
     },
     
     -- Localization
