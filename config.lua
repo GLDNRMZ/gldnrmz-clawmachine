@@ -1,4 +1,14 @@
 Config = {
+    -- Framework & System Configuration
+    -- Set to 'auto' to auto-detect, or manually specify: 'qb', 'qbox', 'esx', 'none'
+    Framework = 'auto',
+    
+    -- Target system: 'auto' (detects ox_target > qb-target), 'ox_target', 'qb-target', 'none'
+    Target = 'auto',
+    
+    -- Inventory system: 'auto' (detects ox_inventory first, then framework inventory), 'ox_inventory', 'framework', 'none'
+    Inventory = 'auto',
+    
     -- Global settings
     price = 10,
     prizechance = 40,

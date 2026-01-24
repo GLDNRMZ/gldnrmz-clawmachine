@@ -1,12 +1,13 @@
 # Modernized Claw Machine Script
 
-A fully modernized and optimized claw machine resource for FiveM servers with comprehensive error handling, improved performance, and streamlined configuration.
+A fully modernized and optimized claw machine resource for FiveM servers with comprehensive error handling, improved performance, streamlined configuration, and **framework-agnostic support**.
 
 ## ✨ Features
 
+- **Framework Agnostic**: Works seamlessly with QB, QBox, ESX, or standalone ox_inventory
 - **Modern FiveM Integration**: Updated to use latest FiveM practices and ox_lib
 - **Ox_Target Support**: Seamless interaction system with ox_target
-- **Ox_Inventory Integration**: Full compatibility with ox_inventory for item management
+- **Flexible Inventory Management**: Automatic framework detection and integration
 - **Centralized Configuration**: Simplified config structure with global settings
 - **Comprehensive Error Handling**: Robust validation and error recovery throughout
 - **Prop Cleanup System**: Automatic cleanup on resource stop/restart
@@ -19,18 +20,23 @@ A fully modernized and optimized claw machine resource for FiveM servers with co
 **Required:**
 - ox_lib
 - ox_target
-- ox_inventory
 
-**Optional:**
-- Any framework (ESX, QBCore, etc.) - script is framework agnostic
+**Optional (choose one for inventory system):**
+- **QB-Core** - For QB servers
+- **QBox** - For QBox servers  
+- **es_extended** - For ESX servers
+- **ox_inventory** - Standalone inventory fallback
+
+> **Note:** The script auto-detects your framework and uses the appropriate integration. If no framework is found, it falls back to `ox_inventory` for inventory operations.
 
 ## 🚀 Installation
 
-1. Ensure all required dependencies are installed and running
-2. Place the resource in your server's resources folder
-3. Add `ensure gldnrmz-clawmachine` to your server.cfg
-4. Configure machine locations in `config.lua`
-5. Restart your server
+1. Ensure ox_lib and ox_target are installed and running
+2. Install at least one of the supported frameworks (QB, QBox, or ESX) or use ox_inventory standalone
+3. Place the resource in your server's resources folder
+4. Add `ensure gldnrmz-clawmachine` to your server.cfg
+5. Configure machine locations in `config.lua`
+6. Restart your server
 
 ## ⚙️ Configuration
 

@@ -1,5 +1,49 @@
 local machineInfo = nil
 local createdMachines = {}
+local FW = {}
+
+-- Load bridge module
+local function loadBridge()
+    local targetCode = LoadResourceFile(GetCurrentResourceName(), 'bridge/target.lua')
+    if not targetCode then
+        error("Failed to load bridge/target.lua")
+    end
+    local targetFunc = load(targetCode)
+    return targetFunc()
+end
+
+local Target = loadBridge()
+
+-- Initialize framework notifications wrapper
+local function initFrameworkNotify()
+    if GetResourceState('qb-core') == 'started' then
+        local Framework = exports['qb-core']:GetCoreObject()
+        FW.notify = function(title, description, type)
+            Framework.Functions.Notify(description, type or 'info')
+        end
+        FW.type = 'qb'
+    elseif GetResourceState('qbox') == 'started' then
+        local Framework = exports.qbox:GetCoreObject()
+        FW.notify = function(title, description, type)
+            Framework.Functions.Notify(description, type or 'info')
+        end
+        FW.type = 'qbox'
+    elseif GetResourceState('es_extended') == 'started' then
+        FW.notify = function(title, description, type)
+            TriggerEvent('esx:showNotification', description)
+        end
+        FW.type = 'esx'
+    else
+        FW.notify = function(title, description, type)
+            lib.notify({
+                title = title,
+                description = description,
+                type = type or 'info'
+            })
+        end
+        FW.type = 'none'
+    end
+end
 
 local function loadModel(model)
     if not IsModelValid(model) then
@@ -35,7 +79,7 @@ local function createClawMachines()
     
     -- Remove any existing targets for this model with error handling
     pcall(function()
-        exports.ox_target:removeModel(model)
+        Target:removeModel(model)
     end)
 
     -- Clean up existing machines
@@ -92,7 +136,7 @@ local function createClawMachines()
 
     -- Add target for the model with error handling
     local targetSuccess = pcall(function()
-        exports.ox_target:addModel(model, {
+        Target:addModel(model, {
             {
                 name = 'claw_machine_use',
                 icon = 'fas fa-coins',
@@ -100,20 +144,12 @@ local function createClawMachines()
                 onSelect = function(data)
                     local entity = data.entity
                     if not entity or IsPedAPlayer(entity) then 
-                        lib.notify({
-                            title = 'Error',
-                            description = 'Invalid claw machine entity',
-                            type = 'error'
-                        })
+                        FW.notify('Error', 'Invalid claw machine entity', 'error')
                         return 
                     end
                     
                     if not DoesEntityExist(entity) then
-                        lib.notify({
-                            title = 'Error',
-                            description = 'Claw machine not found',
-                            type = 'error'
-                        })
+                        FW.notify('Error', 'Claw machine not found', 'error')
                         return
                     end
                     
@@ -141,11 +177,7 @@ local function createClawMachines()
                      end
                     
                     if not closestMachine then
-                        lib.notify({
-                            title = 'Claw Machine',
-                            description = 'You are too far from the machine!',
-                            type = 'error'
-                        })
+                        FW.notify('Claw Machine', 'You are too far from the machine!', 'error')
                         return
                     end
                     
@@ -169,7 +201,7 @@ local function createClawMachines()
                     }) then
                         -- Progress completed successfully
                         ClearPedTasks(playerPed)
-                        TriggerServerEvent('qb-clawmachine:winPrize', closestMachine)
+                        TriggerServerEvent('clawmachine:winPrize', closestMachine)
                     else
                         -- Progress was cancelled
                         ClearPedTasks(playerPed)
@@ -181,7 +213,7 @@ local function createClawMachines()
     end)
     
     if not targetSuccess then
-        print("[ERROR] Failed to add ox_target interaction for claw machines")
+        print("[ERROR] Failed to add target interaction for claw machines")
         return false
     end
     
@@ -192,6 +224,15 @@ end
 CreateThread(function()
     -- Add a small delay to ensure all dependencies are loaded
     Wait(1000)
+    
+    -- Initialize framework notifications
+    initFrameworkNotify()
+    print("[INFO] Framework detected: " .. FW.type)
+    
+    -- Initialize target system
+    Target:init()
+    print("[INFO] Target config: " .. (Config.Target or 'auto'))
+    print("[INFO] Target system detected: " .. Target.type)
     
     local success = createClawMachines()
     if not success then
@@ -268,7 +309,7 @@ local function playClawMachineAnimation(animType)
 end
 
 -- Animation event handler with validation
-RegisterNetEvent('qb-clawmachine:client:animation', function(animType)
+RegisterNetEvent('clawmachine:client:animation', function(animType)
     if not animType or (animType ~= "win" and animType ~= "lose") then
         print("[ERROR] Invalid animation type received: " .. tostring(animType))
         return
@@ -281,9 +322,9 @@ end)
 local function cleanupClawMachines()
     local model = `ch_prop_arcade_claw_01a`
     
-    -- Remove ox_target interactions
+    -- Remove target interactions
     pcall(function()
-        exports.ox_target:removeModel(model)
+        Target:removeModel(model)
     end)
     
     -- Delete all created machines
