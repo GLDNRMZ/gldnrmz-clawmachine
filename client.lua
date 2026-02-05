@@ -1,48 +1,18 @@
 local machineInfo = nil
 local createdMachines = {}
-local FW = {}
 
--- Load bridge module
-local function loadBridge()
-    local targetCode = LoadResourceFile(GetCurrentResourceName(), 'bridge/target.lua')
-    if not targetCode then
-        error("Failed to load bridge/target.lua")
+local Target = exports.community_bridge:Target()
+local Notify = exports.community_bridge:Notify()
+local ProgressBar = exports.community_bridge:ProgressBar()
+
+local function notify(message, nType, time)
+    if Notify and Notify.SendNotify then
+        return Notify.SendNotify(message, nType or 'info', time)
     end
-    local targetFunc = load(targetCode)
-    return targetFunc()
-end
-
-local Target = loadBridge()
-
--- Initialize framework notifications wrapper
-local function initFrameworkNotify()
-    if GetResourceState('qb-core') == 'started' then
-        local Framework = exports['qb-core']:GetCoreObject()
-        FW.notify = function(title, description, type)
-            Framework.Functions.Notify(description, type or 'info')
-        end
-        FW.type = 'qb'
-    elseif GetResourceState('qbox') == 'started' then
-        local Framework = exports.qbox:GetCoreObject()
-        FW.notify = function(title, description, type)
-            Framework.Functions.Notify(description, type or 'info')
-        end
-        FW.type = 'qbox'
-    elseif GetResourceState('es_extended') == 'started' then
-        FW.notify = function(title, description, type)
-            TriggerEvent('esx:showNotification', description)
-        end
-        FW.type = 'esx'
-    else
-        FW.notify = function(title, description, type)
-            lib.notify({
-                title = title,
-                description = description,
-                type = type or 'info'
-            })
-        end
-        FW.type = 'none'
-    end
+    return lib.notify({
+        description = message,
+        type = nType or 'info'
+    })
 end
 
 local function loadModel(model)
@@ -79,7 +49,7 @@ local function createClawMachines()
     
     -- Remove any existing targets for this model with error handling
     pcall(function()
-        Target:removeModel(model)
+        Target.RemoveModel(model)
     end)
 
     -- Clean up existing machines
@@ -136,20 +106,20 @@ local function createClawMachines()
 
     -- Add target for the model with error handling
     local targetSuccess = pcall(function()
-        Target:addModel(model, {
+        local options = {
             {
                 name = 'claw_machine_use',
                 icon = 'fas fa-coins',
                 label = (Config.Text and Config.Text['use_claw'] or 'Use Claw Machine $') .. (Config.price or 10),
                 onSelect = function(data)
-                    local entity = data.entity
+                    local entity = type(data) == 'table' and data.entity or data
                     if not entity or IsPedAPlayer(entity) then 
-                        FW.notify('Error', 'Invalid claw machine entity', 'error')
+                        notify('Invalid claw machine entity', 'error')
                         return 
                     end
                     
                     if not DoesEntityExist(entity) then
-                        FW.notify('Error', 'Claw machine not found', 'error')
+                        notify('Claw machine not found', 'error')
                         return
                     end
                     
@@ -177,12 +147,12 @@ local function createClawMachines()
                      end
                     
                     if not closestMachine then
-                        FW.notify('Claw Machine', 'You are too far from the machine!', 'error')
+                        notify('You are too far from the machine!', 'error')
                         return
                     end
                     
                     -- Start progress bar
-                    if lib.progressBar({
+                    local progressOptions = {
                         duration = Config.progressTime,
                         label = (Config.Text and Config.Text['grab_toy']) or 'Grabbing toy...',
                         useWhileDead = false,
@@ -198,7 +168,16 @@ local function createClawMachines()
                             clip = "insert_coins",
                             flag = 16,
                         },
-                    }) then
+                    }
+
+                    local progressOk = false
+                    if ProgressBar and ProgressBar.Open then
+                        progressOk = ProgressBar.Open(progressOptions)
+                    else
+                        progressOk = lib.progressBar(progressOptions)
+                    end
+
+                    if progressOk then
                         -- Progress completed successfully
                         ClearPedTasks(playerPed)
                         TriggerServerEvent('clawmachine:winPrize', closestMachine)
@@ -206,10 +185,11 @@ local function createClawMachines()
                         -- Progress was cancelled
                         ClearPedTasks(playerPed)
                     end
-                        end,
-                     distance = 1.0
-                 }
-             })
+                end,
+                distance = 1.0
+            }
+        }
+        Target.AddModel(model, options)
     end)
     
     if not targetSuccess then
@@ -226,13 +206,7 @@ CreateThread(function()
     Wait(1000)
     
     -- Initialize framework notifications
-    initFrameworkNotify()
-    print("[INFO] Framework detected: " .. FW.type)
-    
-    -- Initialize target system
-    Target:init()
-    print("[INFO] Target config: " .. (Config.Target or 'auto'))
-    print("[INFO] Target system detected: " .. Target.type)
+    print("[INFO] Using community_bridge for target/notify/progress")
     
     local success = createClawMachines()
     if not success then
@@ -324,7 +298,7 @@ local function cleanupClawMachines()
     
     -- Remove target interactions
     pcall(function()
-        Target:removeModel(model)
+        Target.RemoveModel(model)
     end)
     
     -- Delete all created machines

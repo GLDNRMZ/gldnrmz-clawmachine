@@ -10,26 +10,12 @@ use_experimental_fxv2_oal 'yes'
 
 dependencies {
     'ox_lib',
-}
-
-optional_dependencies {
-    'qb-core',
-    'qbox',
-    'es_extended',
-    'ox_target',
-    'qb-target',
-    'ox_inventory'
+    'community_bridge',
 }
 
 shared_scripts {
     '@ox_lib/init.lua',
     'config.lua'
-}
-
-files {
-    'bridge/framework.lua',
-    'bridge/target.lua',
-    'bridge/inventory.lua',
 }
 
 client_scripts {
