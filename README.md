@@ -1,100 +1,66 @@
 # gldnrmz-clawmachine
 
-A standalone, framework-agnostic FiveM claw machine script for server owners and developers. Highly configurable, optimized, and compatible with major targets and inventories.
+Claw machines for FiveM that work with any framework, target and inventory supported by [community_bridge](https://github.com/TheOrderFivem/community_bridge).
 
----
+## Features
+- Works with QBCore, QBox, ESX and others through community_bridge
+- Works with ox_target, qb-target, sleepless_interact or no target
+- Item prizes and cash prizes (paid straight into a framework account)
+- Server-authoritative: the server checks distance, cooldown, play length and balance, so a modified client can't skip the progress bar or play from across the map
+- One player per machine at a time
+- Props are client-side and only spawn when you're nearby
+- Prize odds are kept on the server and never sent to players
+- Startup checks warn about prize items missing from ox_inventory and about prize pools that pay out more cash than a play costs
+- Translations through ox_lib locales
+- Optional map blips and ox_lib logging
 
-## ✨ Features
-- Standalone, framework-agnostic (auto-detects QBCore, ESX, QBox, or none)
-- Target-agnostic (supports ox_target, qb-target, or none)
-- Inventory-agnostic (supports ox_inventory, framework, or none)
-- Fully configurable prize pool and machine locations
-- Optimized entity management and cleanup
-- Progress bar and notification support
-- Easy integration with ox_lib and community_bridge
-- Localization support
-- Safe error handling and validation
+## Requirements
+| Dependency | Required |
+|---|---|
+| [ox_lib](https://github.com/overextended/ox_lib) | Yes |
+| [community_bridge](https://github.com/TheOrderFivem/community_bridge/releases) | Yes |
+| OneSync | Yes |
 
-## 📦 Requirements
-| Dependency         | Required | Link                                                      |
-|-------------------|----------|-----------------------------------------------------------|
-| ox_lib            | Yes      | [overextended/ox_lib](https://github.com/overextended/ox_lib) |
-| community_bridge  | Yes      | [community_bridge](https://github.com/TheOrderFivem/community_bridge/releases) |
-| Target System     | Optional | ox_target / qb-target                                      |
-| Inventory System  | Optional | ox_inventory / framework                                   |
-
-## ⚡ Installation
-1. Download or clone this repository into your resources folder.
-2. Ensure `ox_lib` and `community_bridge` are installed and started before this resource.
-3. Add to your `server.cfg`:
+## Installation
+1. Put this folder in your resources.
+2. Add to `server.cfg` after its dependencies:
    ```
    ensure ox_lib
    ensure community_bridge
    ensure gldnrmz-clawmachine
    ```
-4. (Optional) Install and start your preferred target/inventory system before this resource.
 
-## ⚙️ Configuration
-- All configuration is handled in `config.lua`.
-- Example config snippet:
+## Configuration
+| File | Contents |
+|---|---|
+| `config/shared.lua` | Model, price, charged account, play time, distances, blips, machine locations |
+| `config/server.lua` | Win chance, cooldown, anti-cheat tolerances, logging, version check, prize pool |
+| `locales/en.json` | All text players see. Copy it to e.g. `de.json` and set `setr ox:locale de` |
+
+### Prizes
+`chance` is a weight: a prize's odds are its chance divided by the sum of all chances. Each prize needs either `item` or `account`:
 
 ```lua
-Config = {
-    Framework = 'auto', -- 'auto', 'qb', 'qbox', 'esx', 'none'
-    Target = 'auto',    -- 'auto', 'ox_target', 'qb-target', 'none'
-    Inventory = 'auto', -- 'auto', 'ox_inventory', 'framework', 'none'
-    price = 10,
-    prizechance = 40,
-    progressTime = 7500,
-    prizes = {
-        { item = 'cash', chance = 75, amount = 10, label = 'Money' },
-        { item = 'goldbar', chance = 8, amount = 1, label = 'Gold Bar' },
-        -- ...
-    },
-    machines = {
-        vector4(195.64, -249.91, 54.07, 159.21),
-        -- ...
-    },
-    Text = {
-        ['claw_machine'] = 'Claw Machine',
-        ['use_claw'] = 'Use Claw Machine $',
-        ['grab_toy'] = 'Working Joystick...',
-        ['ate_money'] = 'You dropped it...'
-    }
-}
+{ item = 'goldbar',  chance = 8,  amount = 1,  label = 'Gold Bar' },
+{ account = 'money', chance = 75, amount = 10, label = 'Cash' },
 ```
 
-### Config Field Reference
-| Field         | Type     | Description                                               |
-|--------------|----------|----------------------------------------------------------|
-| Framework    | string   | Framework to use ('auto', 'qb', 'qbox', 'esx', 'none')   |
-| Target       | string   | Target system ('auto', 'ox_target', 'qb-target', 'none') |
-| Inventory    | string   | Inventory system ('auto', 'ox_inventory', 'framework', 'none') |
-| price        | number   | Cost to play the machine                                 |
-| prizechance  | number   | % chance to win any prize                                |
-| progressTime | number   | Progress bar duration (ms)                               |
-| prizes       | table    | Prize pool (item, chance, amount, label)                 |
-| machines     | table    | Machine locations (vector4)                              |
-| Text         | table    | Localization strings                                     |
+### Machines
+Each entry is `vec4(x, y, z, heading)` for where the player stands. The list position is the machine's id, so add new machines at the end.
 
-## 📘 Troubleshooting
-- **Not enough money:** Ensure player has sufficient funds in the configured account.
-- **No prizes configured:** Check `Config.prizes` for valid entries.
-- **Inventory full:** Prize will not be given, money is refunded.
-- **Dependency errors:** Ensure `ox_lib` and `community_bridge` are started first.
-- **Debugging:** Check server/client console for `[ERROR]` logs.
+## Upgrading from 2.x
+- `config.lua` was split into `config/shared.lua` and `config/server.lua`. Copy your locations and prizes across.
+- `Framework`, `Target` and `Inventory` options were removed. community_bridge already detects these.
+- `Text` moved to `locales/en.json`.
+- Cash prizes should use `account = 'money'` instead of `item = 'cash'`.
 
-## ❗ License / Usage Rules
-- Licensed under GNU GPL v3. See LICENSE for details.
-- Do **not** sell, resell, or monetize this script.
-- Do **not** remove author credit.
-- You may modify for personal/server use, but must retain attribution.
+## Troubleshooting
+- **"This machine is out of order"**: no valid prizes. Check the server console for warnings.
+- **Prize skipped at startup**: the item name doesn't exist in ox_inventory.
+- **"possible exploit" warning**: a client finished a play faster than `playTime` allows.
 
-## 👤 Credit
-- Script by **GLDNRMZ**
-- Uses [ox_lib](https://github.com/overextended/ox_lib) and [community_bridge](https://github.com/GLDNRMZ/community_bridge)
+## License
+GNU GPL v3. See LICENSE. Do not sell or remove author credit.
 
-## 📄 License Footer
-- Attribution required in all copies and modifications.
-- Redistribution allowed only under GNU GPL v3.
-- Commercial use, selling, or credit removal is strictly prohibited.
+## Credit
+Script by **GLDNRMZ**.

@@ -1,0 +1,16 @@
+{
+    "target_label": "Play Claw Machine ($%s)",
+    "progress_label": "Working the joystick...",
+    "blip_name": "Claw Machine",
+    "lost": "You dropped it...",
+    "won_item": "You won: %s!",
+    "won_items": "You won: %sx %s!",
+    "won_cash": "You won $%s!",
+    "error_busy": "You're already playing.",
+    "error_cooldown": "Give the machine a second...",
+    "error_occupied": "Someone else is using this machine.",
+    "error_too_far": "You're too far from the machine.",
+    "error_no_money": "You don't have enough money.",
+    "error_unavailable": "This machine is out of order.",
+    "error_refunded": "You couldn't carry the prize. Your money was refunded."
+}

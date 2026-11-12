@@ -1,27 +1,28 @@
 fx_version 'cerulean'
 game 'gta5'
-
-name 'gldnrmz-clawmachine'
-author 'GLDNRMZ'
-description 'Framework-agnostic, Target-agnostic, Inventory-agnostic Claw Machine'
-version '2.1.0'
 lua54 'yes'
 use_experimental_fxv2_oal 'yes'
 
+name 'gldnrmz-clawmachine'
+author 'GLDNRMZ'
+description 'Framework, target and inventory agnostic claw machines'
+version '3.0.0'
+repository 'https://github.com/GLDNRMZ/gldnrmz-clawmachine'
+
+ox_lib 'locale'
+
 dependencies {
+    '/onesync',
     'ox_lib',
     'community_bridge',
 }
 
-shared_scripts {
-    '@ox_lib/init.lua',
-    'config.lua'
-}
+shared_script '@ox_lib/init.lua'
+client_script 'client/main.lua'
+server_script 'server/main.lua'
 
-client_scripts {
-    'client.lua',
-}
-
-server_scripts {
-    'server.lua',
+-- config/server.lua is intentionally NOT listed here so prize odds never reach clients.
+files {
+    'config/shared.lua',
+    'locales/*.json',
 }
