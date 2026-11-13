@@ -6,7 +6,7 @@ use_experimental_fxv2_oal 'yes'
 name 'gldnrmz-clawmachine'
 author 'GLDNRMZ'
 description 'Framework, target and inventory agnostic claw machines'
-version '3.0.0'
+version '3.0.1'
 repository 'https://github.com/GLDNRMZ/gldnrmz-clawmachine'
 
 ox_lib 'locale'

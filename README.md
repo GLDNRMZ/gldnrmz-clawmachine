@@ -10,7 +10,7 @@ Claw machines for FiveM that work with any framework, target and inventory suppo
 - One player per machine at a time
 - Props are client-side and only spawn when you're nearby
 - Prize odds are kept on the server and never sent to players
-- Startup checks warn about prize items missing from ox_inventory and about prize pools that pay out more cash than a play costs
+- Startup checks warn about prize items missing from your inventory and about prize pools that pay out more cash than a play costs
 - Translations through ox_lib locales
 - Optional map blips and ox_lib logging
 
@@ -18,12 +18,13 @@ Claw machines for FiveM that work with any framework, target and inventory suppo
 | Dependency | Required |
 |---|---|
 | [ox_lib](https://github.com/overextended/ox_lib) | Yes |
-| [community_bridge](https://github.com/TheOrderFivem/community_bridge/releases) | Yes |
+| [community_bridge](https://github.com/TheOrderFivem/community_bridge/releases) **0.13.6+** | Yes |
 | OneSync | Yes |
 
 ## Installation
 1. Put this folder in your resources.
-2. Add to `server.cfg` after its dependencies:
+2. Add every prize item to your inventory's item list.
+3. Add to `server.cfg` after its dependencies:
    ```
    ensure ox_lib
    ensure community_bridge
@@ -56,7 +57,7 @@ Each entry is `vec4(x, y, z, heading)` for where the player stands. The list pos
 
 ## Troubleshooting
 - **"This machine is out of order"**: no valid prizes. Check the server console for warnings.
-- **Prize skipped at startup**: the item name doesn't exist in ox_inventory.
+- **Prize skipped at startup**: the item name doesn't exist in your inventory's item list.
 - **"possible exploit" warning**: a client finished a play faster than `playTime` allows.
 
 ## License
