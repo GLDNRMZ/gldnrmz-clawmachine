@@ -60,11 +60,18 @@ Each entry is `vec4(x, y, z, heading)` for where the player stands. The list pos
 - **Prize skipped at startup**: the item name doesn't exist in your inventory's item list.
 - **"possible exploit" warning**: a client finished a play faster than `playTime` allows.
 
-## 📄 License
-GNU GPL v3. See LICENSE. Do not sell or remove author credit.
-
 ## 🙏 Credit
 Script by **GLDNRMZ**.
+
+## 📄 License
+
+**GLDNRMZ Script License** - see [LICENSE](LICENSE).
+
+- ✅ Run it on your own server and edit it for that server
+- ❌ Don't sell it, re-upload or share it (free or paid), or put it in a pack or server build
+- ❌ Don't remove the credits or claim it as your own
+
+Need something else, like a commercial license? Ask on [Discord](https://discord.gg/7YHJ7774jA).
 
 <!-- gldnrmz-links -->
 ---
